@@ -6,5 +6,5 @@ docker-build:
 
 gen:
 	swag init --parseDependency \
-		--dir ../oauth2-service/adapter/rest/,../user-service/adapter/rest/ \
+		--dir ../oauth2-service/adapter/rest/,../user-service/adapter/rest/,../oauth2-client-service/adapter/rest/ \
 		-g app.go --output ./swagger

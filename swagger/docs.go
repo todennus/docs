@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/auth/callback": {
             "post": {
-                "description": "This endpoint is called by the IdP after it validated the user.\nIt notifies to the server about the authentication result (success or failure) and the inforamtion of user.",
+                "description": "This endpoint is called by the IdP after it validated the user.\nIt notifies to the server about the authentication result (success or failure) and the information of user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -56,6 +56,35 @@ const docTemplate = `{
                         "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerNotFoundErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/update": {
+            "get": {
+                "description": "The IdP redirects the user to this endpoint after it sends the authentication result to the server. \u003cbr\u003e\nThis endpoint updates the user session state to ` + "`" + `authenticated` + "`" + `, ` + "`" + `unauthenticated` + "`" + `, or ` + "`" + `failed authentication` + "`" + `.",
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "Authentication Update Endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication id",
+                        "name": "authentication_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "303": {
+                        "description": "Redirect back to oauth2 authorization endpoint"
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
                     }
                 }
@@ -286,7 +315,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateRequest"
+                            "$ref": "#/definitions/dto.OAuth2ClientCreateRequest"
                         }
                     }
                 ],
@@ -294,7 +323,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Create client successfully",
                         "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientCreateResponse"
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse"
                         }
                     },
                     "400": {
@@ -326,7 +355,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateFirstRequest"
+                            "$ref": "#/definitions/dto.OAuth2ClientCreateFirstRequest"
                         }
                     }
                 ],
@@ -387,7 +416,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Get client successfully",
                         "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientGetResponse"
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse"
                         }
                     },
                     "400": {
@@ -400,35 +429,6 @@ const docTemplate = `{
                         "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerNotFoundErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/session/update": {
-            "get": {
-                "description": "The user will be redirected to this endpoint by the IdP after it sends the authentication result to the server. \u003cbr\u003e\nThis endpoint updates the user session state to ` + "`" + `authenticated` + "`" + `, ` + "`" + `unauthenticated` + "`" + `, or ` + "`" + `failed authentication` + "`" + `.",
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "Session Update Endpoint",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authentication id",
-                        "name": "authentication_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "303": {
-                        "description": "Redirect back to oauth2 authorization endpoint"
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
                     }
                 }
@@ -610,6 +610,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.OAuth2ClientCreateFirstRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "First Client"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "s3Cr3tP@ssW0rD"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "huykingsofm"
+                }
+            }
+        },
         "dto.OAuth2ClientCreateFirstResponse": {
             "type": "object",
             "properties": {
@@ -632,6 +649,52 @@ const docTemplate = `{
                 "owner_id": {
                     "type": "string",
                     "example": "330559330522759168"
+                }
+            }
+        },
+        "dto.OAuth2ClientCreateRequest": {
+            "type": "object",
+            "properties": {
+                "is_confidential": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Example Client"
+                }
+            }
+        },
+        "dto.OAuth2ClientCreateResponse": {
+            "type": "object",
+            "properties": {
+                "allowed_scope": {
+                    "type": "string",
+                    "example": "read:user"
+                },
+                "client_id": {
+                    "type": "string",
+                    "example": "332974701238012989"
+                },
+                "client_secret": {
+                    "type": "string",
+                    "example": "ElBacv..."
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Example Client"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "example": "330559330522759168"
+                }
+            }
+        },
+        "dto.OAuth2ClientGetByIDResponse": {
+            "type": "object",
+            "properties": {
+                "client": {
+                    "$ref": "#/definitions/github_com_todennus_proto_gen_service_dto_resource.OAuth2Client"
                 }
             }
         },
@@ -728,82 +791,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateFirstRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "example": "First Client"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "s3Cr3tP@ssW0rD"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "huykingsofm"
-                }
-            }
-        },
-        "github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateRequest": {
-            "type": "object",
-            "properties": {
-                "is_confidential": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Example Client"
-                }
-            }
-        },
-        "github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateResponse": {
-            "type": "object",
-            "properties": {
-                "allowed_scope": {
-                    "type": "string",
-                    "example": "read:user"
-                },
-                "client_id": {
-                    "type": "string",
-                    "example": "332974701238012989"
-                },
-                "client_secret": {
-                    "type": "string",
-                    "example": "ElBacv..."
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Example Client"
-                },
-                "owner_id": {
-                    "type": "string",
-                    "example": "330559330522759168"
-                }
-            }
-        },
-        "github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientGetResponse": {
-            "type": "object",
-            "properties": {
-                "allowed_scope": {
-                    "type": "string",
-                    "example": "read:user"
-                },
-                "client_id": {
-                    "type": "string",
-                    "example": "332974701238012989"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Example Client"
-                },
-                "owner_id": {
-                    "type": "string",
-                    "example": "330559330522759168"
-                }
-            }
-        },
         "github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2TokenResponse": {
             "type": "object",
             "properties": {
@@ -821,6 +808,26 @@ const docTemplate = `{
                 },
                 "token_type": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_todennus_proto_gen_service_dto_resource.OAuth2Client": {
+            "type": "object",
+            "properties": {
+                "allowed_scope": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_confidential": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1004,6 +1011,30 @@ const docTemplate = `{
                 }
             }
         },
+        "response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.OAuth2ClientCreateResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.OAuth2ClientGetByIDResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
         "response.SwaggerSuccessResponse-dto_UserGetByUsernameResponse": {
             "type": "object",
             "properties": {
@@ -1021,30 +1052,6 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/dto.UserRegisterResponse"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "success"
-                }
-            }
-        },
-        "response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientCreateResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateResponse"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "success"
-                }
-            }
-        },
-        "response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientGetResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientGetResponse"
                 },
                 "status": {
                     "type": "string",
