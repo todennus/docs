@@ -1,4 +1,16 @@
 definitions:
+  dto.OAuth2ClientCreateFirstRequest:
+    properties:
+      name:
+        example: First Client
+        type: string
+      password:
+        example: s3Cr3tP@ssW0rD
+        type: string
+      username:
+        example: huykingsofm
+        type: string
+    type: object
   dto.OAuth2ClientCreateFirstResponse:
     properties:
       allowed_scope:
@@ -16,6 +28,38 @@ definitions:
       owner_id:
         example: "330559330522759168"
         type: string
+    type: object
+  dto.OAuth2ClientCreateRequest:
+    properties:
+      is_confidential:
+        example: true
+        type: boolean
+      name:
+        example: Example Client
+        type: string
+    type: object
+  dto.OAuth2ClientCreateResponse:
+    properties:
+      allowed_scope:
+        example: read:user
+        type: string
+      client_id:
+        example: "332974701238012989"
+        type: string
+      client_secret:
+        example: ElBacv...
+        type: string
+      name:
+        example: Example Client
+        type: string
+      owner_id:
+        example: "330559330522759168"
+        type: string
+    type: object
+  dto.OAuth2ClientGetByIDResponse:
+    properties:
+      client:
+        $ref: '#/definitions/github_com_todennus_proto_gen_service_dto_resource.OAuth2Client'
     type: object
   dto.UserGetByUsernameResponse:
     properties:
@@ -83,60 +127,6 @@ definitions:
         example: hlqWe...
         type: string
     type: object
-  github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateFirstRequest:
-    properties:
-      name:
-        example: First Client
-        type: string
-      password:
-        example: s3Cr3tP@ssW0rD
-        type: string
-      username:
-        example: huykingsofm
-        type: string
-    type: object
-  github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateRequest:
-    properties:
-      is_confidential:
-        example: true
-        type: boolean
-      name:
-        example: Example Client
-        type: string
-    type: object
-  github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateResponse:
-    properties:
-      allowed_scope:
-        example: read:user
-        type: string
-      client_id:
-        example: "332974701238012989"
-        type: string
-      client_secret:
-        example: ElBacv...
-        type: string
-      name:
-        example: Example Client
-        type: string
-      owner_id:
-        example: "330559330522759168"
-        type: string
-    type: object
-  github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientGetResponse:
-    properties:
-      allowed_scope:
-        example: read:user
-        type: string
-      client_id:
-        example: "332974701238012989"
-        type: string
-      name:
-        example: Example Client
-        type: string
-      owner_id:
-        example: "330559330522759168"
-        type: string
-    type: object
   github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2TokenResponse:
     properties:
       access_token:
@@ -149,6 +139,19 @@ definitions:
         type: string
       token_type:
         type: string
+    type: object
+  github_com_todennus_proto_gen_service_dto_resource.OAuth2Client:
+    properties:
+      allowed_scope:
+        type: string
+      id:
+        type: integer
+      is_confidential:
+        type: boolean
+      name:
+        type: string
+      owner_id:
+        type: integer
     type: object
   github_com_todennus_user-service_adapter_rest_dto.UserGetByIDResponse:
     properties:
@@ -276,6 +279,22 @@ definitions:
         example: success
         type: string
     type: object
+  response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.OAuth2ClientCreateResponse'
+      status:
+        example: success
+        type: string
+    type: object
+  response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.OAuth2ClientGetByIDResponse'
+      status:
+        example: success
+        type: string
+    type: object
   response.SwaggerSuccessResponse-dto_UserGetByUsernameResponse:
     properties:
       data:
@@ -288,22 +307,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/dto.UserRegisterResponse'
-      status:
-        example: success
-        type: string
-    type: object
-  response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientCreateResponse:
-    properties:
-      data:
-        $ref: '#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateResponse'
-      status:
-        example: success
-        type: string
-    type: object
-  response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientGetResponse:
-    properties:
-      data:
-        $ref: '#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientGetResponse'
       status:
         example: success
         type: string
@@ -350,7 +353,7 @@ paths:
       - application/json
       description: |-
         This endpoint is called by the IdP after it validated the user.
-        It notifies to the server about the authentication result (success or failure) and the inforamtion of user.
+        It notifies to the server about the authentication result (success or failure) and the information of user.
       parameters:
       - description: Authentication result
         in: body
@@ -374,6 +377,27 @@ paths:
           schema:
             $ref: '#/definitions/response.SwaggerNotFoundErrorResponse'
       summary: Authentication Callback Endpoint
+      tags:
+      - OAuth2
+  /auth/update:
+    get:
+      description: |-
+        The IdP redirects the user to this endpoint after it sends the authentication result to the server. <br>
+        This endpoint updates the user session state to `authenticated`, `unauthenticated`, or `failed authentication`.
+      parameters:
+      - description: Authentication id
+        in: query
+        name: authentication_id
+        required: true
+        type: string
+      responses:
+        "303":
+          description: Redirect back to oauth2 authorization endpoint
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+      summary: Authentication Update Endpoint
       tags:
       - OAuth2
   /oauth2/authorize:
@@ -538,14 +562,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateRequest'
+          $ref: '#/definitions/dto.OAuth2ClientCreateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Create client successfully
           schema:
-            $ref: '#/definitions/response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientCreateResponse'
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse'
         "400":
           description: Bad request
           schema:
@@ -568,7 +592,7 @@ paths:
         "200":
           description: Get client successfully
           schema:
-            $ref: '#/definitions/response.SwaggerSuccessResponse-github_com_todennus_oauth2-service_adapter_rest_dto_OAuth2ClientGetResponse'
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse'
         "400":
           description: Bad request
           schema:
@@ -593,7 +617,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2ClientCreateFirstRequest'
+          $ref: '#/definitions/dto.OAuth2ClientCreateFirstRequest'
       produces:
       - application/json
       responses:
@@ -620,27 +644,6 @@ paths:
       summary: Create the first oauth2 client
       tags:
       - OAuth2 Client
-  /session/update:
-    get:
-      description: |-
-        The user will be redirected to this endpoint by the IdP after it sends the authentication result to the server. <br>
-        This endpoint updates the user session state to `authenticated`, `unauthenticated`, or `failed authentication`.
-      parameters:
-      - description: Authentication id
-        in: query
-        name: authentication_id
-        required: true
-        type: string
-      responses:
-        "303":
-          description: Redirect back to oauth2 authorization endpoint
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
-      summary: Session Update Endpoint
-      tags:
-      - OAuth2
   /users:
     post:
       consumes:
