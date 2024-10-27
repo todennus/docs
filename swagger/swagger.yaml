@@ -327,20 +327,6 @@ definitions:
         example: success
         type: string
     type: object
-  response.SwaggerUnauthorizedErrorResponse:
-    properties:
-      error:
-        example: forbidden
-        type: string
-      error_description:
-        example: require authentication
-        type: string
-      metadata:
-        $ref: '#/definitions/response.SwaggerMetadata'
-      status:
-        example: error
-        type: string
-    type: object
 info:
   contact: {}
   description: This is Todennus - An Open ID Connect and OAuth2 Provider
@@ -372,7 +358,11 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
-        "401":
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+        "404":
           description: Not found
           schema:
             $ref: '#/definitions/response.SwaggerNotFoundErrorResponse'
@@ -629,10 +619,6 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
-        "401":
-          description: unauthorized
-          schema:
-            $ref: '#/definitions/response.SwaggerUnauthorizedErrorResponse'
         "403":
           description: Forbidden
           schema:
@@ -751,7 +737,7 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
-        "401":
+        "403":
           description: Invalid credentials
           schema:
             $ref: '#/definitions/response.SwaggerInvalidCredentialsErrorResponse'
