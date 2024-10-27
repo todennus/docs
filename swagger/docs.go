@@ -52,7 +52,13 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
                     },
-                    "401": {
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    },
+                    "404": {
                         "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerNotFoundErrorResponse"
@@ -372,12 +378,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerUnauthorizedErrorResponse"
-                        }
-                    },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
@@ -558,7 +558,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
                     },
-                    "401": {
+                    "403": {
                         "description": "Invalid credentials",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerInvalidCredentialsErrorResponse"
@@ -1080,26 +1080,6 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "success"
-                }
-            }
-        },
-        "response.SwaggerUnauthorizedErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "forbidden"
-                },
-                "error_description": {
-                    "type": "string",
-                    "example": "require authentication"
-                },
-                "metadata": {
-                    "$ref": "#/definitions/response.SwaggerMetadata"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "error"
                 }
             }
         }
