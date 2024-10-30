@@ -303,7 +303,19 @@ const docTemplate = `{
         },
         "/oauth2_clients": {
             "post": {
-                "description": "Create an new OAuth2 Client. If the ` + "`" + `is_confidential` + "`" + ` field is true, a secret is issued. Please carefully store this secret in a confidential place. This secret will never be retrieved by anyway. \u003cbr\u003e\nRequire scope ` + "`" + `[todennus]create:client` + "`" + `.",
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/create:client"
+                        ]
+                    },
+                    {
+                        "OAuth2Application": [
+                            "todennus/admin:create:client"
+                        ]
+                    }
+                ],
+                "description": "Create an new OAuth2 Client. \u003cbr\u003e\nIf the ` + "`" + `is_confidential` + "`" + ` field is true, a secret is issued. Please carefully store this secret in a confidential place. This secret will never be retrieved by anyway. \u003cbr\u003e\nRequire ` + "`" + `todennus/create:client` + "`" + ` or ` + "`" + `todennus/admin:create:client` + "`" + ` scope.",
                 "consumes": [
                     "application/json"
                 ],
@@ -337,57 +349,11 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
-                    }
-                }
-            }
-        },
-        "/oauth2_clients/first": {
-            "post": {
-                "description": "Create the first OAuth2 Client (always a confidential Client). \u003cbr\u003e\nWhy this API? When todennus is started, there is no existed Client, we don't have any flow to authenticate a user (all authentication flows require a Client). This API is only valid if there is no existing Client and the user is administrator.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth2 Client"
-                ],
-                "summary": "Create the first oauth2 client",
-                "parameters": [
-                    {
-                        "description": "Client Information",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.OAuth2ClientCreateFirstRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Create client successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientCreateFirstResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
-                        }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "API not found",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerNotFoundErrorResponse"
                         }
                     }
                 }
@@ -395,7 +361,7 @@ const docTemplate = `{
         },
         "/oauth2_clients/{client_id}": {
             "get": {
-                "description": "Get OAuth2 Client information by ClientID. \u003cbr\u003e",
+                "description": "Get OAuth2 Client information by ClientID.",
                 "produces": [
                     "application/json"
                 ],
@@ -416,7 +382,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Get client successfully",
                         "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse"
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-github_com_todennus_oauth2-client-service_adapter_rest_dto_OAuth2ClientGetByIDResponse"
                         }
                     },
                     "400": {
@@ -436,7 +402,14 @@ const docTemplate = `{
         },
         "/users": {
             "post": {
-                "description": "Register a new user by providing username and password",
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/admin:create:user"
+                        ]
+                    }
+                ],
+                "description": "Register a new user by providing username and password. \u003cbr\u003e\nRequire ` + "`" + `todennus/admin:create:user` + "`" + ` scope.",
                 "consumes": [
                     "application/json"
                 ],
@@ -469,6 +442,12 @@ const docTemplate = `{
                         "description": "Bad request",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
                         }
                     },
                     "409": {
@@ -523,7 +502,14 @@ const docTemplate = `{
         },
         "/users/validate": {
             "post": {
-                "description": "Validate the user credentials and returns the user information.",
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/admin:validate:user"
+                        ]
+                    }
+                ],
+                "description": "Validate the user credentials and returns the user information. \u003cbr\u003e\nRequire ` + "`" + `todennus/admin:validate:user` + "`" + ` scope.",
                 "consumes": [
                     "application/json"
                 ],
@@ -559,9 +545,9 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "Invalid credentials",
+                        "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/response.SwaggerInvalidCredentialsErrorResponse"
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
                         }
                     }
                 }
@@ -569,7 +555,7 @@ const docTemplate = `{
         },
         "/users/{user_id}": {
             "get": {
-                "description": "Get an user information by user id. \u003cbr\u003e",
+                "description": "Get an user information by user id.",
                 "produces": [
                     "application/json"
                 ],
@@ -610,51 +596,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.OAuth2ClientCreateFirstRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "example": "First Client"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "s3Cr3tP@ssW0rD"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "huykingsofm"
-                }
-            }
-        },
-        "dto.OAuth2ClientCreateFirstResponse": {
-            "type": "object",
-            "properties": {
-                "allowed_scope": {
-                    "type": "string",
-                    "example": "read:user"
-                },
-                "client_id": {
-                    "type": "string",
-                    "example": "332974701238012989"
-                },
-                "client_secret": {
-                    "type": "string",
-                    "example": "ElBacv..."
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Example Client"
-                },
-                "owner_id": {
-                    "type": "string",
-                    "example": "330559330522759168"
-                }
-            }
-        },
         "dto.OAuth2ClientCreateRequest": {
             "type": "object",
             "properties": {
+                "is_admin": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "is_confidential": {
                     "type": "boolean",
                     "example": true
@@ -668,10 +616,6 @@ const docTemplate = `{
         "dto.OAuth2ClientCreateResponse": {
             "type": "object",
             "properties": {
-                "allowed_scope": {
-                    "type": "string",
-                    "example": "read:user"
-                },
                 "client_id": {
                     "type": "string",
                     "example": "332974701238012989"
@@ -680,6 +624,14 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ElBacv..."
                 },
+                "is_admin": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_confidential": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "name": {
                     "type": "string",
                     "example": "Example Client"
@@ -687,14 +639,6 @@ const docTemplate = `{
                 "owner_id": {
                     "type": "string",
                     "example": "330559330522759168"
-                }
-            }
-        },
-        "dto.OAuth2ClientGetByIDResponse": {
-            "type": "object",
-            "properties": {
-                "client": {
-                    "$ref": "#/definitions/github_com_todennus_proto_gen_service_dto_resource.OAuth2Client"
                 }
             }
         },
@@ -753,6 +697,31 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_todennus_oauth2-client-service_adapter_rest_dto.OAuth2ClientGetByIDResponse": {
+            "type": "object",
+            "properties": {
+                "client_id": {
+                    "type": "string",
+                    "example": "332974701238012989"
+                },
+                "is_admin": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_confidential": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Example Client"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "example": "330559330522759168"
+                }
+            }
+        },
         "github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2AuthenticationCallbackRequest": {
             "type": "object",
             "properties": {
@@ -808,26 +777,6 @@ const docTemplate = `{
                 },
                 "token_type": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_todennus_proto_gen_service_dto_resource.OAuth2Client": {
-            "type": "object",
-            "properties": {
-                "allowed_scope": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_confidential": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -946,26 +895,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.SwaggerInvalidCredentialsErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "invalid_credentials"
-                },
-                "error_description": {
-                    "type": "string",
-                    "example": "username or password is invalid"
-                },
-                "metadata": {
-                    "$ref": "#/definitions/response.SwaggerMetadata"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "error"
-                }
-            }
-        },
         "response.SwaggerMetadata": {
             "type": "object",
             "properties": {
@@ -999,35 +928,11 @@ const docTemplate = `{
                 }
             }
         },
-        "response.SwaggerSuccessResponse-dto_OAuth2ClientCreateFirstResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/dto.OAuth2ClientCreateFirstResponse"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "success"
-                }
-            }
-        },
         "response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "$ref": "#/definitions/dto.OAuth2ClientCreateResponse"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "success"
-                }
-            }
-        },
-        "response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/dto.OAuth2ClientGetByIDResponse"
                 },
                 "status": {
                     "type": "string",
@@ -1059,6 +964,18 @@ const docTemplate = `{
                 }
             }
         },
+        "response.SwaggerSuccessResponse-github_com_todennus_oauth2-client-service_adapter_rest_dto_OAuth2ClientGetByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_todennus_oauth2-client-service_adapter_rest_dto.OAuth2ClientGetByIDResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
         "response.SwaggerSuccessResponse-github_com_todennus_user-service_adapter_rest_dto_UserGetByIDResponse": {
             "type": "object",
             "properties": {
@@ -1081,6 +998,27 @@ const docTemplate = `{
                     "type": "string",
                     "example": "success"
                 }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "OAuth2Application": {
+            "type": "oauth2",
+            "flow": "application",
+            "tokenUrl": "/oauth2/token",
+            "scopes": {
+                "offline_access": "Maintain access to resource even if user is not present",
+                "todennus/admin:create:client": "Grant admin permission to create a client",
+                "todennus/admin:create:user": "Grant admin permission to create a new user",
+                "todennus/admin:read:client.profile": "Grant admin read-only access to client profile",
+                "todennus/admin:read:user.profile": "Grant admin read-only access to user profile",
+                "todennus/admin:validate:client": "Grant admin permission to validate client",
+                "todennus/admin:validate:user": "Grant admin permission to validate user credentials",
+                "todennus/app:read:client.owner": "Grant read-only access to client owner id",
+                "todennus/app:read:client.profile": "Grant read-only access to client profile",
+                "todennus/create:client": "Grant permission to create a client",
+                "todennus/read:client.profile": "Grant read-only access to client profile",
+                "todennus/read:user.profile": "Grant read-only access to user profile"
             }
         }
     }
