@@ -24,47 +24,6 @@ Authorization: Bearer {ACCESS_TOKEN}
 
 ### Todennus (inhouse) scope
 
-Refers [Resources](./resources.md#resources) to know the scope to read a particular resource or field.
+Refers [Scopes](./scopes.md) for the scope definitions.
 
-The general form of todennus scope is:
-
-```
-[todennus]action{:resource}
-```
-
-For example:
-
-```
-[todennus]*        : do anything
-[todennus]read     : read everything
-[todennus]read:user: read user
-```
-
-A scope can be covered by aother scope. For example:
-
-```
-[todennus]read:      cover [todennus]read:user.
-[todennus]*:user:    cover [todennus]read:user and [todennus]write:user.
-[todennus]read:user: cover [todennus]read:user.role.
-```
-
-| Action   | Description                                                 |
-| -------- | ----------------------------------------------------------- |
-| `*`      | Grant read and write permission on a resource               |
-| `read`   | Grant read-only access to resource or a field in a resource |
-| `write`  | Grant create, update, and delete permission on a resource   |
-| `create` | Grant ability to create a resource                          |
-| `update` | Grant ability to update a resource                          |
-| `delete` | Grant ability to delete a resource                          |
-
-### Outside scope
-
-We also support freely define your own application scope. The scope is called outside if it is not inhouse scope.
-
-For example:
-```
-read:user
-read_user
-write_something
-[todennus]invalid
-```
+Refers [Swagger Endpoint](./README.md) to know which scope is required to make an API.

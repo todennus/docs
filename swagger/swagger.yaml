@@ -1,36 +1,9 @@
 definitions:
-  dto.OAuth2ClientCreateFirstRequest:
-    properties:
-      name:
-        example: First Client
-        type: string
-      password:
-        example: s3Cr3tP@ssW0rD
-        type: string
-      username:
-        example: huykingsofm
-        type: string
-    type: object
-  dto.OAuth2ClientCreateFirstResponse:
-    properties:
-      allowed_scope:
-        example: read:user
-        type: string
-      client_id:
-        example: "332974701238012989"
-        type: string
-      client_secret:
-        example: ElBacv...
-        type: string
-      name:
-        example: Example Client
-        type: string
-      owner_id:
-        example: "330559330522759168"
-        type: string
-    type: object
   dto.OAuth2ClientCreateRequest:
     properties:
+      is_admin:
+        example: false
+        type: boolean
       is_confidential:
         example: true
         type: boolean
@@ -40,26 +13,24 @@ definitions:
     type: object
   dto.OAuth2ClientCreateResponse:
     properties:
-      allowed_scope:
-        example: read:user
-        type: string
       client_id:
         example: "332974701238012989"
         type: string
       client_secret:
         example: ElBacv...
         type: string
+      is_admin:
+        example: false
+        type: boolean
+      is_confidential:
+        example: false
+        type: boolean
       name:
         example: Example Client
         type: string
       owner_id:
         example: "330559330522759168"
         type: string
-    type: object
-  dto.OAuth2ClientGetByIDResponse:
-    properties:
-      client:
-        $ref: '#/definitions/github_com_todennus_proto_gen_service_dto_resource.OAuth2Client'
     type: object
   dto.UserGetByUsernameResponse:
     properties:
@@ -98,6 +69,24 @@ definitions:
         type: string
       username:
         example: huykingsofm
+        type: string
+    type: object
+  github_com_todennus_oauth2-client-service_adapter_rest_dto.OAuth2ClientGetByIDResponse:
+    properties:
+      client_id:
+        example: "332974701238012989"
+        type: string
+      is_admin:
+        example: false
+        type: boolean
+      is_confidential:
+        example: false
+        type: boolean
+      name:
+        example: Example Client
+        type: string
+      owner_id:
+        example: "330559330522759168"
         type: string
     type: object
   github_com_todennus_oauth2-service_adapter_rest_dto.OAuth2AuthenticationCallbackRequest:
@@ -139,19 +128,6 @@ definitions:
         type: string
       token_type:
         type: string
-    type: object
-  github_com_todennus_proto_gen_service_dto_resource.OAuth2Client:
-    properties:
-      allowed_scope:
-        type: string
-      id:
-        type: integer
-      is_confidential:
-        type: boolean
-      name:
-        type: string
-      owner_id:
-        type: integer
     type: object
   github_com_todennus_user-service_adapter_rest_dto.UserGetByIDResponse:
     properties:
@@ -234,20 +210,6 @@ definitions:
         example: error
         type: string
     type: object
-  response.SwaggerInvalidCredentialsErrorResponse:
-    properties:
-      error:
-        example: invalid_credentials
-        type: string
-      error_description:
-        example: username or password is invalid
-        type: string
-      metadata:
-        $ref: '#/definitions/response.SwaggerMetadata'
-      status:
-        example: error
-        type: string
-    type: object
   response.SwaggerMetadata:
     properties:
       request_id:
@@ -271,26 +233,10 @@ definitions:
         example: error
         type: string
     type: object
-  response.SwaggerSuccessResponse-dto_OAuth2ClientCreateFirstResponse:
-    properties:
-      data:
-        $ref: '#/definitions/dto.OAuth2ClientCreateFirstResponse'
-      status:
-        example: success
-        type: string
-    type: object
   response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse:
     properties:
       data:
         $ref: '#/definitions/dto.OAuth2ClientCreateResponse'
-      status:
-        example: success
-        type: string
-    type: object
-  response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse:
-    properties:
-      data:
-        $ref: '#/definitions/dto.OAuth2ClientGetByIDResponse'
       status:
         example: success
         type: string
@@ -307,6 +253,14 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/dto.UserRegisterResponse'
+      status:
+        example: success
+        type: string
+    type: object
+  response.SwaggerSuccessResponse-github_com_todennus_oauth2-client-service_adapter_rest_dto_OAuth2ClientGetByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/github_com_todennus_oauth2-client-service_adapter_rest_dto.OAuth2ClientGetByIDResponse'
       status:
         example: success
         type: string
@@ -544,8 +498,9 @@ paths:
       consumes:
       - application/json
       description: |-
-        Create an new OAuth2 Client. If the `is_confidential` field is true, a secret is issued. Please carefully store this secret in a confidential place. This secret will never be retrieved by anyway. <br>
-        Require scope `[todennus]create:client`.
+        Create an new OAuth2 Client. <br>
+        If the `is_confidential` field is true, a secret is issued. Please carefully store this secret in a confidential place. This secret will never be retrieved by anyway. <br>
+        Require `todennus/create:client` or `todennus/admin:create:client` scope.
       parameters:
       - description: Client Information
         in: body
@@ -564,12 +519,21 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+      security:
+      - OAuth2Application:
+        - todennus/create:client
+      - OAuth2Application:
+        - todennus/admin:create:client
       summary: Create oauth2 client
       tags:
       - OAuth2 Client
   /oauth2_clients/{client_id}:
     get:
-      description: Get OAuth2 Client information by ClientID. <br>
+      description: Get OAuth2 Client information by ClientID.
       parameters:
       - description: ClientID
         in: path
@@ -582,7 +546,7 @@ paths:
         "200":
           description: Get client successfully
           schema:
-            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientGetByIDResponse'
+            $ref: '#/definitions/response.SwaggerSuccessResponse-github_com_todennus_oauth2-client-service_adapter_rest_dto_OAuth2ClientGetByIDResponse'
         "400":
           description: Bad request
           schema:
@@ -594,47 +558,13 @@ paths:
       summary: Get oauth2 client by id
       tags:
       - OAuth2 Client
-  /oauth2_clients/first:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        Create the first OAuth2 Client (always a confidential Client). <br>
-        Why this API? When todennus is started, there is no existed Client, we don't have any flow to authenticate a user (all authentication flows require a Client). This API is only valid if there is no existing Client and the user is administrator.
-      parameters:
-      - description: Client Information
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.OAuth2ClientCreateFirstRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Create client successfully
-          schema:
-            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_OAuth2ClientCreateFirstResponse'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
-        "404":
-          description: API not found
-          schema:
-            $ref: '#/definitions/response.SwaggerNotFoundErrorResponse'
-      summary: Create the first oauth2 client
-      tags:
-      - OAuth2 Client
   /users:
     post:
       consumes:
       - application/json
-      description: Register a new user by providing username and password
+      description: |-
+        Register a new user by providing username and password. <br>
+        Require `todennus/admin:create:user` scope.
       parameters:
       - description: User registration data
         in: body
@@ -653,16 +583,23 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
         "409":
           description: Duplicated
           schema:
             $ref: '#/definitions/response.SwaggerDuplicatedErrorResponse'
+      security:
+      - OAuth2Application:
+        - todennus/admin:create:user
       summary: Register a new user
       tags:
       - User
   /users/{user_id}:
     get:
-      description: Get an user information by user id. <br>
+      description: Get an user information by user id.
       parameters:
       - description: User ID
         in: path
@@ -718,7 +655,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Validate the user credentials and returns the user information.
+      description: |-
+        Validate the user credentials and returns the user information. <br>
+        Require `todennus/admin:validate:user` scope.
       parameters:
       - description: Validation data
         in: body
@@ -738,10 +677,31 @@ paths:
           schema:
             $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
         "403":
-          description: Invalid credentials
+          description: Forbidden
           schema:
-            $ref: '#/definitions/response.SwaggerInvalidCredentialsErrorResponse'
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+      security:
+      - OAuth2Application:
+        - todennus/admin:validate:user
       summary: Validate user credentials
       tags:
       - User
+securityDefinitions:
+  OAuth2Application:
+    flow: application
+    scopes:
+      offline_access: Maintain access to resource even if user is not present
+      todennus/admin:create:client: Grant admin permission to create a client
+      todennus/admin:create:user: Grant admin permission to create a new user
+      todennus/admin:read:client.profile: Grant admin read-only access to client profile
+      todennus/admin:read:user.profile: Grant admin read-only access to user profile
+      todennus/admin:validate:client: Grant admin permission to validate client
+      todennus/admin:validate:user: Grant admin permission to validate user credentials
+      todennus/app:read:client.owner: Grant read-only access to client owner id
+      todennus/app:read:client.profile: Grant read-only access to client profile
+      todennus/create:client: Grant permission to create a client
+      todennus/read:client.profile: Grant read-only access to client profile
+      todennus/read:user.profile: Grant read-only access to user profile
+    tokenUrl: /oauth2/token
+    type: oauth2
 swagger: "2.0"

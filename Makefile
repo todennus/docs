@@ -1,10 +1,15 @@
 start:
-	go run ./cmd/main.go
+	go run ./cmd/main.go swagger
 
 docker-build:
 	docker build -t todennus/docs -f ./build/package/Dockerfile .
 
-gen:
+scope-gen:
+	go run ./cmd/main.go definition -s ./scopes.md
+
+swag-gen:
+	go run ./cmd/main.go definition -m ./docs.go
+
 	swag init --parseDependency \
-		--dir ../oauth2-service/adapter/rest/,../user-service/adapter/rest/,../oauth2-client-service/adapter/rest/ \
-		-g app.go --output ./swagger
+		--dir ./,../oauth2-service/adapter/rest/,../user-service/adapter/rest/,../oauth2-client-service/adapter/rest/ \
+		-g docs.go --output ./swagger
