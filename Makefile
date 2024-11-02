@@ -13,5 +13,5 @@ swag-gen:
 	go run ./cmd/main.go definition -m ./docs.go
 
 	swag init --parseDependency \
-		--dir ./,../oauth2-service/adapter/rest/,../user-service/adapter/rest/,../oauth2-client-service/adapter/rest/ \
+		--dir ./,../oauth2-service/adapter/rest/,../user-service/adapter/rest/,../oauth2-client-service/adapter/rest/,../file-service/adapter/rest/ \
 		-g docs.go --output ./swagger

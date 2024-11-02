@@ -9,15 +9,19 @@ import _ "github.com/todennus/oauth2-service/adapter/rest"
 
 // @securityDefinitions.oauth2.application OAuth2Application
 // @tokenUrl /oauth2/token
-// @scope.offline_access Maintain access to resource even if user is not present
-// @scope.todennus/read:user.profile Grant read-only access to user profile
-// @scope.todennus/read:client.profile Grant read-only access to client profile
-// @scope.todennus/create:client Grant permission to create a client
-// @scope.todennus/app:read:client.owner Grant read-only access to client owner id
-// @scope.todennus/app:read:client.profile Grant read-only access to client profile
-// @scope.todennus/admin:read:user.profile Grant admin read-only access to user profile
-// @scope.todennus/admin:validate:user Grant admin permission to validate user credentials
-// @scope.todennus/admin:create:user Grant admin permission to create a new user
-// @scope.todennus/admin:read:client.profile Grant admin read-only access to client profile
-// @scope.todennus/admin:validate:client Grant admin permission to validate client
-// @scope.todennus/admin:create:client Grant admin permission to create a client
+// @scope.offline_access Maintain access to the resource even if the user is not present
+// @scope.todennus/read:user.profile Grant read-only access to the user's profile
+// @scope.todennus/read:user.avatar Grant read-only access to the user's avatar
+// @scope.todennus/update:user.avatar Grant permission to update the user's avatar
+// @scope.todennus/read:client.profile Grant read-only access to the client's profile
+// @scope.todennus/create:client Grant permission to create new clients
+// @scope.todennus/app:read:client.owner Grant read-only access to the client's owner id
+// @scope.todennus/app:read:client.profile Grant read-only access to the client's profile
+// @scope.todennus/admin:read:user.profile Grant read-only access to all users' profiles
+// @scope.todennus/admin:validate:user Grant permission to validate all users' credentials
+// @scope.todennus/admin:create:user Grant permission to create new users
+// @scope.todennus/admin:read:client.profile Grant read-only access to all client profiles
+// @scope.todennus/admin:validate:client Grant permission to validate the client's credentials
+// @scope.todennus/admin:create:client Grant permission to create new clients
+// @scope.todennus/admin:validate:file.policy Grant permission to read the file policy from policy source
+// @scope.todennus/admin:command:file.temporary Grant permission to give a command to a temporary file
