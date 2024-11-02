@@ -7,7 +7,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4
-	github.com/todennus/oauth2-service v0.0.0-20241030021752-10e3fd3aeab2
+	github.com/todennus/oauth2-service v0.0.0-20241030025330-373bd1a56ebf
 	github.com/todennus/shared v0.6.0
 	github.com/todennus/x v0.3.0
 )

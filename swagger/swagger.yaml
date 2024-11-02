@@ -1,4 +1,19 @@
 definitions:
+  dto.AvatarGetPolicyTokenResponse:
+    properties:
+      policy_token:
+        type: string
+    type: object
+  dto.AvatarUpdateRequest:
+    properties:
+      temporary_file_token:
+        type: string
+    type: object
+  dto.AvatarUpdateResponse:
+    properties:
+      avatar_url:
+        type: string
+    type: object
   dto.OAuth2ClientCreateRequest:
     properties:
       is_admin:
@@ -30,6 +45,11 @@ definitions:
         type: string
       owner_id:
         example: "330559330522759168"
+        type: string
+    type: object
+  dto.UploadResponse:
+    properties:
+      temporary_file_token:
         type: string
     type: object
   dto.UserGetByUsernameResponse:
@@ -69,6 +89,20 @@ definitions:
         type: string
       username:
         example: huykingsofm
+        type: string
+    type: object
+  dto.ValidatePolicyRequest:
+    properties:
+      policy_token:
+        type: string
+      size:
+        type: integer
+      type:
+        type: string
+    type: object
+  dto.ValidatePolicyResponse:
+    properties:
+      upload_token:
         type: string
     type: object
   github_com_todennus_oauth2-client-service_adapter_rest_dto.OAuth2ClientGetByIDResponse:
@@ -233,10 +267,34 @@ definitions:
         example: error
         type: string
     type: object
+  response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.AvatarGetPolicyTokenResponse'
+      status:
+        example: success
+        type: string
+    type: object
+  response.SwaggerSuccessResponse-dto_AvatarUpdateResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.AvatarUpdateResponse'
+      status:
+        example: success
+        type: string
+    type: object
   response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse:
     properties:
       data:
         $ref: '#/definitions/dto.OAuth2ClientCreateResponse'
+      status:
+        example: success
+        type: string
+    type: object
+  response.SwaggerSuccessResponse-dto_UploadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.UploadResponse'
       status:
         example: success
         type: string
@@ -253,6 +311,14 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/dto.UserRegisterResponse'
+      status:
+        example: success
+        type: string
+    type: object
+  response.SwaggerSuccessResponse-dto_ValidatePolicyResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.ValidatePolicyResponse'
       status:
         example: success
         type: string
@@ -344,6 +410,73 @@ paths:
       summary: Authentication Update Endpoint
       tags:
       - OAuth2
+  /files/policy/validate:
+    post:
+      consumes:
+      - application/json
+      description: Use a `policy_token` to validate the file metadata against the
+        policy. If the validation is success, get an `upload_token` to upload the
+        file later.
+      parameters:
+      - description: Validate policy request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ValidatePolicyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully validate the file metadata
+          schema:
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_ValidatePolicyResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+      summary: Validate file metadata.
+      tags:
+      - File
+  /files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Use an `upload_token` to upload the file. This file will be stored
+        in temporary storage. Return a `temporary_file_token`.
+      parameters:
+      - description: upload token
+        in: formData
+        name: upload_token
+        required: true
+        type: string
+      - description: Upload file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Upload successfully
+          schema:
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_UploadResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+      summary: Upload file.
+      tags:
+      - File
   /oauth2/authorize:
     get:
       description: |-
@@ -624,6 +757,63 @@ paths:
       summary: Get user by id
       tags:
       - User
+  /users/avatar:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Use a temporary_file_token to update user avatar. <br>
+        Require `todennus/update:user.avatar` scope.
+      parameters:
+      - description: avatar update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AvatarUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Validate successfully
+          schema:
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_AvatarUpdateResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+      security:
+      - OAuth2Application:
+        - todennus/update:user.avatar
+      summary: Updating avatar.
+      tags:
+      - User
+  /users/avatar/policy_token:
+    get:
+      description: |-
+        Get the updating avatar policy_token used for validating the avatar image metadata. Please refer POST /files/policy/validate for the next step. <br>
+        Require `todennus/update:user.avatar` scope.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get token successfully
+          schema:
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
+      security:
+      - OAuth2Application:
+        - todennus/update:user.avatar
+      summary: Get the updating avatar policy_token.
+      tags:
+      - User
   /users/username/{username}:
     get:
       description: Get an user information by user username. <br>
@@ -690,18 +880,25 @@ securityDefinitions:
   OAuth2Application:
     flow: application
     scopes:
-      offline_access: Maintain access to resource even if user is not present
-      todennus/admin:create:client: Grant admin permission to create a client
-      todennus/admin:create:user: Grant admin permission to create a new user
-      todennus/admin:read:client.profile: Grant admin read-only access to client profile
-      todennus/admin:read:user.profile: Grant admin read-only access to user profile
-      todennus/admin:validate:client: Grant admin permission to validate client
-      todennus/admin:validate:user: Grant admin permission to validate user credentials
-      todennus/app:read:client.owner: Grant read-only access to client owner id
-      todennus/app:read:client.profile: Grant read-only access to client profile
-      todennus/create:client: Grant permission to create a client
-      todennus/read:client.profile: Grant read-only access to client profile
-      todennus/read:user.profile: Grant read-only access to user profile
+      offline_access: Maintain access to the resource even if the user is not present
+      todennus/admin:command:file.temporary: Grant permission to give a command to
+        a temporary file
+      todennus/admin:create:client: Grant permission to create new clients
+      todennus/admin:create:user: Grant permission to create new users
+      todennus/admin:read:client.profile: Grant read-only access to all client profiles
+      todennus/admin:read:user.profile: Grant read-only access to all users' profiles
+      todennus/admin:validate:client: Grant permission to validate the client's credentials
+      todennus/admin:validate:file.policy: Grant permission to read the file policy
+        from policy source
+      todennus/admin:validate:user: Grant permission to validate all users' credentials
+      todennus/app:read:client.owner: Grant read-only access to the client's owner
+        id
+      todennus/app:read:client.profile: Grant read-only access to the client's profile
+      todennus/create:client: Grant permission to create new clients
+      todennus/read:client.profile: Grant read-only access to the client's profile
+      todennus/read:user.avatar: Grant read-only access to the user's avatar
+      todennus/read:user.profile: Grant read-only access to the user's profile
+      todennus/update:user.avatar: Grant permission to update the user's avatar
     tokenUrl: /oauth2/token
     type: oauth2
 swagger: "2.0"

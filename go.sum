@@ -135,6 +135,8 @@ github.com/todennus/migration v0.1.2 h1:nTjIgCWtthVpB1ERMEIONDGY7cabmQvkOgvxFdjd
 github.com/todennus/migration v0.1.2/go.mod h1:DEqqWMtgRBHncRJIvnbNHYLaN+Q+25+OO8AhfnKrejc=
 github.com/todennus/oauth2-service v0.0.0-20241030021752-10e3fd3aeab2 h1:BnIljsHpuhUZ1BDTdMw8x1mz8hkGRYY6kJGZHrlkiIU=
 github.com/todennus/oauth2-service v0.0.0-20241030021752-10e3fd3aeab2/go.mod h1:D5sqAcgDyxBKFbt3xzfo2WOtD1uIyIdl10GEhEL0FqY=
+github.com/todennus/oauth2-service v0.0.0-20241030025330-373bd1a56ebf h1:h49ZqhQdDkN94yoeqLpAkfDWMhIpt5iljUnFI8FOaWg=
+github.com/todennus/oauth2-service v0.0.0-20241030025330-373bd1a56ebf/go.mod h1:D5sqAcgDyxBKFbt3xzfo2WOtD1uIyIdl10GEhEL0FqY=
 github.com/todennus/proto v0.3.0 h1:abhs0UeLRYebT8xvWX3KRTrt+GtNnghUvXpbZCV6Kb0=
 github.com/todennus/proto v0.3.0/go.mod h1:KJntlZG3lvSZTF954xU/D4TLIcE0wptBTYv5PbmOSq8=
 github.com/todennus/shared v0.6.0 h1:kFOyAwgJ6g4f0deGL5/B0u9oQjBedGznDFMUxYP+KfM=

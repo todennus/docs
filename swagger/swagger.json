@@ -88,6 +88,103 @@
                 }
             }
         },
+        "/files/policy/validate": {
+            "post": {
+                "description": "Use a `policy_token` to validate the file metadata against the policy. If the validation is success, get an `upload_token` to upload the file later.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "Validate file metadata.",
+                "parameters": [
+                    {
+                        "description": "Validate policy request",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ValidatePolicyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully validate the file metadata",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_ValidatePolicyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/files/upload": {
+            "post": {
+                "description": "Use an `upload_token` to upload the file. This file will be stored in temporary storage. Return a `temporary_file_token`.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "Upload file.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "upload token",
+                        "name": "upload_token",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Upload file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Upload successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_UploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth2/authorize": {
             "get": {
                 "description": "The authorization endpoint is used to interact with the resource owner and obtain an authorization grant.\nThis is the entry point for starting an OAuth2 flow, such as Authorization Code or Implicit.",
@@ -451,6 +548,92 @@
                 }
             }
         },
+        "/users/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/update:user.avatar"
+                        ]
+                    }
+                ],
+                "description": "Use a temporary_file_token to update user avatar. \u003cbr\u003e\nRequire `todennus/update:user.avatar` scope.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Updating avatar.",
+                "parameters": [
+                    {
+                        "description": "avatar update request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AvatarUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Validate successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_AvatarUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/avatar/policy_token": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/update:user.avatar"
+                        ]
+                    }
+                ],
+                "description": "Get the updating avatar policy_token used for validating the avatar image metadata. Please refer POST /files/policy/validate for the next step. \u003cbr\u003e\nRequire `todennus/update:user.avatar` scope.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get the updating avatar policy_token.",
+                "responses": {
+                    "200": {
+                        "description": "Get token successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/username/{username}": {
             "get": {
                 "description": "Get an user information by user username. \u003cbr\u003e",
@@ -588,6 +771,30 @@
         }
     },
     "definitions": {
+        "dto.AvatarGetPolicyTokenResponse": {
+            "type": "object",
+            "properties": {
+                "policy_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.AvatarUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "temporary_file_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.AvatarUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.OAuth2ClientCreateRequest": {
             "type": "object",
             "properties": {
@@ -631,6 +838,14 @@
                 "owner_id": {
                     "type": "string",
                     "example": "330559330522759168"
+                }
+            }
+        },
+        "dto.UploadResponse": {
+            "type": "object",
+            "properties": {
+                "temporary_file_token": {
+                    "type": "string"
                 }
             }
         },
@@ -686,6 +901,28 @@
                 "username": {
                     "type": "string",
                     "example": "huykingsofm"
+                }
+            }
+        },
+        "dto.ValidatePolicyRequest": {
+            "type": "object",
+            "properties": {
+                "policy_token": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ValidatePolicyResponse": {
+            "type": "object",
+            "properties": {
+                "upload_token": {
+                    "type": "string"
                 }
             }
         },
@@ -920,11 +1157,47 @@
                 }
             }
         },
+        "response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.AvatarGetPolicyTokenResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.SwaggerSuccessResponse-dto_AvatarUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.AvatarUpdateResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
         "response.SwaggerSuccessResponse-dto_OAuth2ClientCreateResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "$ref": "#/definitions/dto.OAuth2ClientCreateResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.SwaggerSuccessResponse-dto_UploadResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.UploadResponse"
                 },
                 "status": {
                     "type": "string",
@@ -949,6 +1222,18 @@
             "properties": {
                 "data": {
                     "$ref": "#/definitions/dto.UserRegisterResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.SwaggerSuccessResponse-dto_ValidatePolicyResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.ValidatePolicyResponse"
                 },
                 "status": {
                     "type": "string",
@@ -999,18 +1284,22 @@
             "flow": "application",
             "tokenUrl": "/oauth2/token",
             "scopes": {
-                "offline_access": "Maintain access to resource even if user is not present",
-                "todennus/admin:create:client": "Grant admin permission to create a client",
-                "todennus/admin:create:user": "Grant admin permission to create a new user",
-                "todennus/admin:read:client.profile": "Grant admin read-only access to client profile",
-                "todennus/admin:read:user.profile": "Grant admin read-only access to user profile",
-                "todennus/admin:validate:client": "Grant admin permission to validate client",
-                "todennus/admin:validate:user": "Grant admin permission to validate user credentials",
-                "todennus/app:read:client.owner": "Grant read-only access to client owner id",
-                "todennus/app:read:client.profile": "Grant read-only access to client profile",
-                "todennus/create:client": "Grant permission to create a client",
-                "todennus/read:client.profile": "Grant read-only access to client profile",
-                "todennus/read:user.profile": "Grant read-only access to user profile"
+                "offline_access": "Maintain access to the resource even if the user is not present",
+                "todennus/admin:command:file.temporary": "Grant permission to give a command to a temporary file",
+                "todennus/admin:create:client": "Grant permission to create new clients",
+                "todennus/admin:create:user": "Grant permission to create new users",
+                "todennus/admin:read:client.profile": "Grant read-only access to all client profiles",
+                "todennus/admin:read:user.profile": "Grant read-only access to all users' profiles",
+                "todennus/admin:validate:client": "Grant permission to validate the client's credentials",
+                "todennus/admin:validate:file.policy": "Grant permission to read the file policy from policy source",
+                "todennus/admin:validate:user": "Grant permission to validate all users' credentials",
+                "todennus/app:read:client.owner": "Grant read-only access to the client's owner id",
+                "todennus/app:read:client.profile": "Grant read-only access to the client's profile",
+                "todennus/create:client": "Grant permission to create new clients",
+                "todennus/read:client.profile": "Grant read-only access to the client's profile",
+                "todennus/read:user.avatar": "Grant read-only access to the user's avatar",
+                "todennus/read:user.profile": "Grant read-only access to the user's profile",
+                "todennus/update:user.avatar": "Grant permission to update the user's avatar"
             }
         }
     }
