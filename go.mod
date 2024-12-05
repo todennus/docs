@@ -7,9 +7,9 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4
-	github.com/todennus/oauth2-service v0.0.0-20241030025330-373bd1a56ebf
-	github.com/todennus/shared v0.6.0
-	github.com/todennus/x v0.3.0
+	github.com/todennus/oauth2-service v0.0.0-20241102174451-3ff099b9dd9c
+	github.com/todennus/shared v0.8.0
+	github.com/todennus/x v0.5.0
 )
 
 require (
@@ -40,8 +40,8 @@ require (
 	github.com/redis/go-redis/v9 v9.7.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
-	github.com/todennus/migration v0.1.2 // indirect
-	github.com/todennus/proto v0.3.0 // indirect
+	github.com/todennus/migration v0.2.0 // indirect
+	github.com/todennus/proto v0.5.0 // indirect
 	github.com/xybor-x/snowflake v1.0.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.28.0 // indirect

@@ -96,55 +96,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/files/policy/validate": {
+        "/files": {
             "post": {
-                "description": "Use a ` + "`" + `policy_token` + "`" + ` to validate the file metadata against the policy. If the validation is success, get an ` + "`" + `upload_token` + "`" + ` to upload the file later.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "File"
-                ],
-                "summary": "Validate file metadata.",
-                "parameters": [
-                    {
-                        "description": "Validate policy request",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ValidatePolicyRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully validate the file metadata",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_ValidatePolicyResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/files/upload": {
-            "post": {
-                "description": "Use an ` + "`" + `upload_token` + "`" + ` to upload the file. This file will be stored in temporary storage. Return a ` + "`" + `temporary_file_token` + "`" + `.",
+                "description": "Use an ` + "`" + `upload_token` + "`" + ` to upload the file. This API also returns a ` + "`" + `file_token` + "`" + `.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -188,6 +142,43 @@ const docTemplate = `{
                         "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/files/token/{ownership_id}": {
+            "get": {
+                "description": "Use an ` + "`" + `ownership_id` + "`" + ` to retrieve a file token. This token can be used to interact with file in other APIs.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "Retrieve file token.",
+                "parameters": [
+                    {
+                        "description": "Retrieve policy request",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RetrieveFileTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully retrieve the file token",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_RetrieveFileTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
                         }
                     }
                 }
@@ -556,92 +547,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/avatar": {
-            "post": {
-                "security": [
-                    {
-                        "OAuth2Application": [
-                            "todennus/update:user.avatar"
-                        ]
-                    }
-                ],
-                "description": "Use a temporary_file_token to update user avatar. \u003cbr\u003e\nRequire ` + "`" + `todennus/update:user.avatar` + "`" + ` scope.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Updating avatar.",
-                "parameters": [
-                    {
-                        "description": "avatar update request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.AvatarUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Validate successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_AvatarUpdateResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/avatar/policy_token": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2Application": [
-                            "todennus/update:user.avatar"
-                        ]
-                    }
-                ],
-                "description": "Get the updating avatar policy_token used for validating the avatar image metadata. Please refer POST /files/policy/validate for the next step. \u003cbr\u003e\nRequire ` + "`" + `todennus/update:user.avatar` + "`" + ` scope.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get the updating avatar policy_token.",
-                "responses": {
-                    "200": {
-                        "description": "Get token successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/users/username/{username}": {
             "get": {
                 "description": "Get an user information by user username. \u003cbr\u003e",
@@ -776,13 +681,115 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/{user_id}/avatar": {
+            "put": {
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/update:user.avatar"
+                        ]
+                    }
+                ],
+                "description": "Use a temporary_file_token to update user avatar. \u003cbr\u003e\nRequire ` + "`" + `todennus/update:user.avatar` + "`" + ` scope.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update avatar.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Avatar update request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AvatarUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_AvatarUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerBadRequestErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/avatar/upload_token": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2Application": [
+                            "todennus/update:user.avatar"
+                        ]
+                    }
+                ],
+                "description": "Get the upload_token used for updating the avatar image. \u003cbr\u003e\nRequire ` + "`" + `todennus/update:user.avatar` + "`" + ` scope.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get an avatar upload_token.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get token successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerSuccessResponse-dto_AvatarGetUploadTokenResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.SwaggerForbiddenErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "dto.AvatarGetPolicyTokenResponse": {
+        "dto.AvatarGetUploadTokenResponse": {
             "type": "object",
             "properties": {
-                "policy_token": {
+                "upload_token": {
                     "type": "string"
                 }
             }
@@ -790,18 +797,13 @@ const docTemplate = `{
         "dto.AvatarUpdateRequest": {
             "type": "object",
             "properties": {
-                "temporary_file_token": {
+                "file_token": {
                     "type": "string"
                 }
             }
         },
         "dto.AvatarUpdateResponse": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "dto.OAuth2ClientCreateRequest": {
             "type": "object",
@@ -849,10 +851,35 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RetrieveFileTokenRequest": {
+            "type": "object",
+            "properties": {
+                "ownershipID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RetrieveFileTokenResponse": {
+            "type": "object",
+            "properties": {
+                "file_token": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UploadResponse": {
             "type": "object",
             "properties": {
-                "temporary_file_token": {
+                "bucket": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "file_token": {
+                    "type": "string"
+                },
+                "ownership_id": {
                     "type": "string"
                 }
             }
@@ -860,6 +887,10 @@ const docTemplate = `{
         "dto.UserGetByUsernameResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "http://files.todennus.com/123"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "Huy Le Ngoc"
@@ -894,6 +925,10 @@ const docTemplate = `{
         "dto.UserRegisterResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "http://files.todennus.com/123"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "Huy Le Ngoc"
@@ -909,28 +944,6 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "huykingsofm"
-                }
-            }
-        },
-        "dto.ValidatePolicyRequest": {
-            "type": "object",
-            "properties": {
-                "policy_token": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ValidatePolicyResponse": {
-            "type": "object",
-            "properties": {
-                "upload_token": {
-                    "type": "string"
                 }
             }
         },
@@ -1020,6 +1033,10 @@ const docTemplate = `{
         "github_com_todennus_user-service_adapter_rest_dto.UserGetByIDResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "http://files.todennus.com/123"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "Huy Le Ngoc"
@@ -1054,6 +1071,10 @@ const docTemplate = `{
         "github_com_todennus_user-service_adapter_rest_dto.UserValidateResponse": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "http://files.todennus.com/123"
+                },
                 "display_name": {
                     "type": "string",
                     "example": "Huy Le Ngoc"
@@ -1165,11 +1186,11 @@ const docTemplate = `{
                 }
             }
         },
-        "response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse": {
+        "response.SwaggerSuccessResponse-dto_AvatarGetUploadTokenResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/dto.AvatarGetPolicyTokenResponse"
+                    "$ref": "#/definitions/dto.AvatarGetUploadTokenResponse"
                 },
                 "status": {
                     "type": "string",
@@ -1194,6 +1215,18 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/dto.OAuth2ClientCreateResponse"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "response.SwaggerSuccessResponse-dto_RetrieveFileTokenResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.RetrieveFileTokenResponse"
                 },
                 "status": {
                     "type": "string",
@@ -1230,18 +1263,6 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/dto.UserRegisterResponse"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "success"
-                }
-            }
-        },
-        "response.SwaggerSuccessResponse-dto_ValidatePolicyResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/dto.ValidatePolicyResponse"
                 },
                 "status": {
                     "type": "string",
@@ -1293,13 +1314,14 @@ const docTemplate = `{
             "tokenUrl": "/oauth2/token",
             "scopes": {
                 "offline_access": "Maintain access to the resource even if the user is not present",
-                "todennus/admin:command:file.temporary": "Grant permission to give a command to a temporary file",
+                "todennus/admin:change:file.refcount": "Grant permission to change ref count of file ownership",
                 "todennus/admin:create:client": "Grant permission to create new clients",
+                "todennus/admin:create:file.presigned_url": "Grant permission to create file presigned url",
                 "todennus/admin:create:user": "Grant permission to create new users",
                 "todennus/admin:read:client.profile": "Grant read-only access to all client profiles",
                 "todennus/admin:read:user.profile": "Grant read-only access to all users' profiles",
+                "todennus/admin:register:file.policy": "Grant permission to register file upload policy",
                 "todennus/admin:validate:client": "Grant permission to validate the client's credentials",
-                "todennus/admin:validate:file.policy": "Grant permission to read the file policy from policy source",
                 "todennus/admin:validate:user": "Grant permission to validate all users' credentials",
                 "todennus/app:read:client.owner": "Grant read-only access to the client's owner id",
                 "todennus/app:read:client.profile": "Grant read-only access to the client's profile",

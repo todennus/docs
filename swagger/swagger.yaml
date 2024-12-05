@@ -1,18 +1,15 @@
 definitions:
-  dto.AvatarGetPolicyTokenResponse:
+  dto.AvatarGetUploadTokenResponse:
     properties:
-      policy_token:
+      upload_token:
         type: string
     type: object
   dto.AvatarUpdateRequest:
     properties:
-      temporary_file_token:
+      file_token:
         type: string
     type: object
   dto.AvatarUpdateResponse:
-    properties:
-      avatar_url:
-        type: string
     type: object
   dto.OAuth2ClientCreateRequest:
     properties:
@@ -47,13 +44,32 @@ definitions:
         example: "330559330522759168"
         type: string
     type: object
+  dto.RetrieveFileTokenRequest:
+    properties:
+      ownershipID:
+        type: integer
+    type: object
+  dto.RetrieveFileTokenResponse:
+    properties:
+      file_token:
+        type: string
+    type: object
   dto.UploadResponse:
     properties:
-      temporary_file_token:
+      bucket:
+        type: string
+      file_id:
+        type: string
+      file_token:
+        type: string
+      ownership_id:
         type: string
     type: object
   dto.UserGetByUsernameResponse:
     properties:
+      avatar_url:
+        example: http://files.todennus.com/123
+        type: string
       display_name:
         example: Huy Le Ngoc
         type: string
@@ -78,6 +94,9 @@ definitions:
     type: object
   dto.UserRegisterResponse:
     properties:
+      avatar_url:
+        example: http://files.todennus.com/123
+        type: string
       display_name:
         example: Huy Le Ngoc
         type: string
@@ -89,20 +108,6 @@ definitions:
         type: string
       username:
         example: huykingsofm
-        type: string
-    type: object
-  dto.ValidatePolicyRequest:
-    properties:
-      policy_token:
-        type: string
-      size:
-        type: integer
-      type:
-        type: string
-    type: object
-  dto.ValidatePolicyResponse:
-    properties:
-      upload_token:
         type: string
     type: object
   github_com_todennus_oauth2-client-service_adapter_rest_dto.OAuth2ClientGetByIDResponse:
@@ -165,6 +170,9 @@ definitions:
     type: object
   github_com_todennus_user-service_adapter_rest_dto.UserGetByIDResponse:
     properties:
+      avatar_url:
+        example: http://files.todennus.com/123
+        type: string
       display_name:
         example: Huy Le Ngoc
         type: string
@@ -189,6 +197,9 @@ definitions:
     type: object
   github_com_todennus_user-service_adapter_rest_dto.UserValidateResponse:
     properties:
+      avatar_url:
+        example: http://files.todennus.com/123
+        type: string
       display_name:
         example: Huy Le Ngoc
         type: string
@@ -267,10 +278,10 @@ definitions:
         example: error
         type: string
     type: object
-  response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse:
+  response.SwaggerSuccessResponse-dto_AvatarGetUploadTokenResponse:
     properties:
       data:
-        $ref: '#/definitions/dto.AvatarGetPolicyTokenResponse'
+        $ref: '#/definitions/dto.AvatarGetUploadTokenResponse'
       status:
         example: success
         type: string
@@ -287,6 +298,14 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/dto.OAuth2ClientCreateResponse'
+      status:
+        example: success
+        type: string
+    type: object
+  response.SwaggerSuccessResponse-dto_RetrieveFileTokenResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.RetrieveFileTokenResponse'
       status:
         example: success
         type: string
@@ -311,14 +330,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/dto.UserRegisterResponse'
-      status:
-        example: success
-        type: string
-    type: object
-  response.SwaggerSuccessResponse-dto_ValidatePolicyResponse:
-    properties:
-      data:
-        $ref: '#/definitions/dto.ValidatePolicyResponse'
       status:
         example: success
         type: string
@@ -410,44 +421,12 @@ paths:
       summary: Authentication Update Endpoint
       tags:
       - OAuth2
-  /files/policy/validate:
-    post:
-      consumes:
-      - application/json
-      description: Use a `policy_token` to validate the file metadata against the
-        policy. If the validation is success, get an `upload_token` to upload the
-        file later.
-      parameters:
-      - description: Validate policy request
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ValidatePolicyRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully validate the file metadata
-          schema:
-            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_ValidatePolicyResponse'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
-      summary: Validate file metadata.
-      tags:
-      - File
-  /files/upload:
+  /files:
     post:
       consumes:
       - multipart/form-data
-      description: Use an `upload_token` to upload the file. This file will be stored
-        in temporary storage. Return a `temporary_file_token`.
+      description: Use an `upload_token` to upload the file. This API also returns
+        a `file_token`.
       parameters:
       - description: upload token
         in: formData
@@ -475,6 +454,31 @@ paths:
           schema:
             $ref: '#/definitions/response.SwaggerForbiddenErrorResponse'
       summary: Upload file.
+      tags:
+      - File
+  /files/token/{ownership_id}:
+    get:
+      description: Use an `ownership_id` to retrieve a file token. This token can
+        be used to interact with file in other APIs.
+      parameters:
+      - description: Retrieve policy request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RetrieveFileTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully retrieve the file token
+          schema:
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_RetrieveFileTokenResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.SwaggerBadRequestErrorResponse'
+      summary: Retrieve file token.
       tags:
       - File
   /oauth2/authorize:
@@ -757,15 +761,20 @@ paths:
       summary: Get user by id
       tags:
       - User
-  /users/avatar:
-    post:
+  /users/{user_id}/avatar:
+    put:
       consumes:
       - application/json
       description: |-
         Use a temporary_file_token to update user avatar. <br>
         Require `todennus/update:user.avatar` scope.
       parameters:
-      - description: avatar update request
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Avatar update request
         in: body
         name: body
         required: true
@@ -775,7 +784,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Validate successfully
+          description: Update successfully
           schema:
             $ref: '#/definitions/response.SwaggerSuccessResponse-dto_AvatarUpdateResponse'
         "400":
@@ -789,21 +798,27 @@ paths:
       security:
       - OAuth2Application:
         - todennus/update:user.avatar
-      summary: Updating avatar.
+      summary: Update avatar.
       tags:
       - User
-  /users/avatar/policy_token:
+  /users/{user_id}/avatar/upload_token:
     get:
       description: |-
-        Get the updating avatar policy_token used for validating the avatar image metadata. Please refer POST /files/policy/validate for the next step. <br>
+        Get the upload_token used for updating the avatar image. <br>
         Require `todennus/update:user.avatar` scope.
+      parameters:
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Get token successfully
           schema:
-            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_AvatarGetPolicyTokenResponse'
+            $ref: '#/definitions/response.SwaggerSuccessResponse-dto_AvatarGetUploadTokenResponse'
         "403":
           description: Forbidden
           schema:
@@ -811,7 +826,7 @@ paths:
       security:
       - OAuth2Application:
         - todennus/update:user.avatar
-      summary: Get the updating avatar policy_token.
+      summary: Get an avatar upload_token.
       tags:
       - User
   /users/username/{username}:
@@ -881,15 +896,17 @@ securityDefinitions:
     flow: application
     scopes:
       offline_access: Maintain access to the resource even if the user is not present
-      todennus/admin:command:file.temporary: Grant permission to give a command to
-        a temporary file
+      todennus/admin:change:file.refcount: Grant permission to change ref count of
+        file ownership
       todennus/admin:create:client: Grant permission to create new clients
+      todennus/admin:create:file.presigned_url: Grant permission to create file presigned
+        url
       todennus/admin:create:user: Grant permission to create new users
       todennus/admin:read:client.profile: Grant read-only access to all client profiles
       todennus/admin:read:user.profile: Grant read-only access to all users' profiles
+      todennus/admin:register:file.policy: Grant permission to register file upload
+        policy
       todennus/admin:validate:client: Grant permission to validate the client's credentials
-      todennus/admin:validate:file.policy: Grant permission to read the file policy
-        from policy source
       todennus/admin:validate:user: Grant permission to validate all users' credentials
       todennus/app:read:client.owner: Grant read-only access to the client's owner
         id
